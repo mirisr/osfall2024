@@ -30,6 +30,10 @@ impl MLFQ {
         // TODO: Implement this function
         // Add the process to the appropriate queue based on its priority
         // Ensure the priority is within the valid range (0 to num_levels - 1)
+
+        // Iris's Logic - we first check that the priority exists. The priority must 
+        // be greater than or equal to 0 and less than the number of levels. Otherwise 
+        // we do not not add the process.
         if process.priority >= 0 && process.priority < self.num_levels {
             self.queues[process.priority].push(process);
         }
@@ -44,6 +48,13 @@ impl MLFQ {
         let mut current_process = self.queues[queue_index][0].clone();
 
         // Update remaining_time, total_executed_time, and current_time
+
+        // Iris's logic, we first need to get the time quanta for the queue, then
+        // we need to determine which is shorter, the remining time the process has to run
+        // or the time quanta. For which ever is less, we run it for that time. 
+        // if the process still requires more running time, then we move the process
+        // to a lesser priority queue, just one less. Then we update the priority
+
         let time_quanta_for_queue = self.time_quanta[queue_index];
         let time_process_ran_for = min(time_quanta_for_queue, current_process.remaining_time);
         current_process.total_executed_time += time_process_ran_for;
@@ -55,8 +66,10 @@ impl MLFQ {
             // Move the process to a lower priority queue if it doesn't complete
             
             if queue_index < self.num_levels - 1  {
+                current_process.priority = queue_index + 1;
                 self.queues[queue_index].remove(0);
                 self.queues[queue_index + 1].push(current_process);
+                
             }
 
         }
@@ -67,6 +80,10 @@ impl MLFQ {
         // TODO: Implement this function
         // Move all processes to the highest priority queue
         // Reset the priority of all processes to 0
+
+        // Iris's logic, we go through each queue then we drain all the processes of that queue
+        // and push them to the first priority queue, level 0
+        // before adding the process to queue 0, we update its prority
         for priority_queue_i in 1..self.num_levels {
             let drained_processes: Vec<_> = self.queues[priority_queue_i].drain(..).collect();
     
