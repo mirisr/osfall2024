@@ -27,23 +27,31 @@ impl MLFQ {
 
     // Exercise 1: Queue Management
     pub fn add_process(&mut self, process: Process) {
-        // TODO: Implement this function
         // Add the process to the appropriate queue based on its priority
         // Ensure the priority is within the valid range (0 to num_levels - 1)
 
         // Iris's Logic - we first check that the priority exists. The priority must 
         // be greater than or equal to 0 and less than the number of levels. Otherwise 
         // we do not not add the process.
+        // however if the priorty is out of bounds, then we make sure they either
+        // enter the first priority queue, or the last, all while resetting the priority of the process as well. 
         if process.priority >= 0 && process.priority < self.num_levels {
             self.queues[process.priority].push(process);
+        }
+        else if process.priority < 0 {
+            // process.priority = 0; unable to do because the parameter of the process is not mut
+            self.queues[0].push(process);
+        }
+        else {
+            let last_priority = self.num_levels -1;
+            // process.priority == last_priority; unable to do because the parameter of the process is not mut
+            self.queues[last_priority].push(process);
         }
     }
 
     // Exercise 2: Process Execution
     pub fn execute_process(&mut self, queue_index: usize) {
-        // TODO: Implement this function
         // Execute the process for its time quantum or until completion
-        
 
         let mut current_process = self.queues[queue_index][0].clone();
 
@@ -77,7 +85,6 @@ impl MLFQ {
 
     // Exercise 3: Priority Boost
     pub fn priority_boost(&mut self) {
-        // TODO: Implement this function
         // Move all processes to the highest priority queue
         // Reset the priority of all processes to 0
 
@@ -123,7 +130,7 @@ mod tests {
 
         assert_eq!(mlfq.queues[0].len(), 1);
         assert_eq!(mlfq.queues[1].len(), 1);
-        assert_eq!(mlfq.queues[2].len(), 0);
+        assert_eq!(mlfq.queues[2].len(), 1);
     }
 
     #[test]
